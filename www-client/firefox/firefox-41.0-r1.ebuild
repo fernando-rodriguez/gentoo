@@ -252,6 +252,16 @@ src_configure() {
 		append-cxxflags -fno-stack-protector
 	fi
 
+	# Add rpath to LDFLAGS. See #501468
+	if [ "${EROOT}" != "/" ]; then
+		FF_HOME="${EROOT}${MOZILLA_FIVE_HOME}"
+	else
+		FF_HOME="${MOZILLA_FIVE_HOME}"
+	fi
+	append-ldflags "-Wl,-rpath,${FF_HOME}"
+	append-ldflags "-Wl,-rpath,${FF_HOME}/components"
+	append-ldflags "-Wl,-rpath,${FF_HOME}/browser/components"
+
 	# workaround for funky/broken upstream configure...
 	emake -f client.mk configure
 }
@@ -390,11 +400,6 @@ PROFILE_EOF
 	use sparc && { sed -e 's/Firefox/FirefoxGentoo/g' \
 					 -i "${ED}/${MOZILLA_FIVE_HOME}/application.ini" \
 					|| die "sparc sed failed"; }
-
-	# revdep-rebuild entry
-	insinto /etc/revdep-rebuild
-	echo "SEARCH_DIRS_MASK=${MOZILLA_FIVE_HOME}" >> ${T}/10firefox
-	doins "${T}"/10${PN} || die
 }
 
 pkg_preinst() {
