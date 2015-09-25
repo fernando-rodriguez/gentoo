@@ -233,6 +233,15 @@ src_configure() {
 		append-cxxflags -fno-stack-protector
 	fi
 
+	# Add rpath to LDFLAGS. See #501468
+	if [ "${EROOT}" != "/" ]; then
+		TBIRD_HOME="${EROOT}${MOZILLA_FIVE_HOME}"
+	else
+		TBIRD_HOME="${MOZILLA_FIVE_HOME}"
+	fi
+	append-ldflags "-Wl,-rpath,${TBIRD_HOME}"
+	append-ldflags "-Wl,-rpath,${TBIRD_HOME}/components"
+
 	if use crypt; then
 		pushd "${WORKDIR}"/enigmail &>/dev/null ||die
 		econf
